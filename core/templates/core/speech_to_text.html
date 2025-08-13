@@ -1,0 +1,526 @@
+{% extends "base.html" %}
+
+{% block title %}TRANENVI - Speech to Text{% endblock %}
+
+{% block page_title %}Speech to Text{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-6 text-white">
+        <h1 class="text-3xl font-bold mb-2">Speech to Text</h1>
+        <p class="text-blue-100">Chuyển đổi giọng nói thành văn bản với độ chính xác cao</p>
+    </div>
+
+    <!-- Language Selection -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div class="p-6">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Chọn ngôn ngữ
+            </label>
+            <select  id="language-select" name="language" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+                <option value = "vi">Tiếng Việt</option>
+                <option value = "en">English</option>
+                <option value ="zh">中文</option>
+                <option value = "ja">日本語</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Input Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Ghi âm</h2>
+                <p class="text-gray-600 dark:text-gray-300 mt-1">Bắt đầu ghi âm hoặc tải file âm thanh</p>
+            </div>
+            
+            <div class="p-6">
+                <!-- Recording Controls -->
+                <div class="text-center mb-6">
+                    <div class="w-24 h-24 mx-auto mb-4 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center">
+                        <svg class="w-12 h-12 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                        </svg>
+                    </div>
+                    
+                                         <div class="flex justify-center space-x-4">
+                         <button id="record-btn" class="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors">
+                             <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                             </svg>
+                             Bắt đầu ghi âm
+                         </button>
+                         <button id="stop-btn" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-medium rounded-lg transition-colors disabled">
+                             Dừng
+                         </button>
+                         <button id="play-btn" class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors hidden">
+                             <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                             </svg>
+                             Nghe lại
+                         </button>
+                     </div>
+                     
+
+                    
+                    <div class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                        <span id="recordingTime">00:00</span>
+                    </div>
+                    
+                                         <!-- Audio Player (hidden by default) -->
+                     <div id="audio-player" class="mt-4 hidden">
+                         <div class="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+                             <h4 class="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Nghe lại file gốc:</h4>
+                             <audio id="recorded-audio" controls class="w-full">
+                                 Your browser does not support the audio element.
+                             </audio>
+                         </div>
+                     </div>
+                </div>
+
+                <!-- File Upload -->
+                <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+                    <h3 class="text-lg font-medium text-gray-800 dark:text-white mb-4">Hoặc tải file âm thanh</h3>
+                    
+                    <div id="drop-zone" class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center transition-colors hover:border-blue-400 dark:hover:border-blue-400">
+                        <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                        <p class="text-gray-600 dark:text-gray-300 mb-2">Kéo thả file âm thanh vào đây</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Hoặc click để chọn file</p>
+                        <input type="file" id="audio-upload-input" class="hidden" accept="audio/*">
+                        <button id="upload-btn" class="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors">
+                            Chọn file
+                        </button>
+                    </div>
+                    
+                                         <!-- File Preview -->
+                     <div id="file-preview" class="mt-4 hidden">
+                         <div class="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-lg p-4">
+                             <div class="flex items-center mb-3">
+                                 <svg class="w-8 h-8 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                 </svg>
+                                 <div class="flex-1">
+                                     <p id="file-name" class="text-sm font-medium text-green-800 dark:text-green-200"></p>
+                                     <p id="file-size" class="text-xs text-green-600 dark:text-green-400"></p>
+                                 </div>
+                                 <button id="remove-file" class="text-red-500 hover:text-red-700">
+                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                     </svg>
+                                 </button>
+                             </div>
+                                                           <!-- Audio Player for uploaded file -->
+                              <div class="bg-white dark:bg-gray-800 border border-green-200 dark:border-green-600 rounded-lg p-3">
+                                  <h4 class="text-sm font-medium text-green-800 dark:text-green-200 mb-2">Nghe lại file gốc:</h4>
+                                  <audio id="uploaded-audio" controls class="w-full">
+                                      Your browser does not support the audio element.
+                                  </audio>
+                              </div>
+                              
+
+                         </div>
+                     </div>
+                    
+                    <div class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                        Hỗ trợ: MP3, WAV, M4A, FLAC (tối đa 50MB)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Output Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Kết quả</h2>
+                <p class="text-gray-600 dark:text-gray-300 mt-1">Văn bản được chuyển đổi</p>
+            </div>
+            
+            <div class="p-6">
+                                 <div class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4 min-h-[300px]">
+                     <div id="result-container" class="text-gray-500 dark:text-gray-400 text-center py-12">
+                         <svg class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                         </svg>
+                         <p id="result-text">Kết quả chuyển đổi sẽ hiển thị ở đây</p>
+                         <p class="text-sm mt-2">Bắt đầu ghi âm hoặc tải file để bắt đầu</p>
+                     </div>
+                 </div>
+                
+                <div class="mt-4 flex justify-start space-x-4">
+                    <button id="generate-btn" class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white font-medium rounded-lg transition-colors">
+                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        Generate Text
+                    </button>
+                    <button id="copy-btn" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors">
+                        Sao chép
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<script>
+
+    function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Cookie bắt đầu bằng "name="
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+
+
+    const recordBtn = document.getElementById('record-btn');
+    const stopBtn = document.getElementById('stop-btn');
+    const playBtn = document.getElementById('play-btn');
+    const generateBtn = document.getElementById('generate-btn');
+    const resultText = document.getElementById('result-text');
+    const languageSelect = document.getElementById('language-select');
+    
+    // Elements for file upload
+    const uploadInput = document.getElementById('audio-upload-input');
+    const uploadBtn = document.getElementById('upload-btn');
+    const dropZone = document.getElementById('drop-zone');
+    const filePreview = document.getElementById('file-preview');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    const removeFile = document.getElementById('remove-file');
+    
+    // Audio elements
+    const audioPlayer = document.getElementById('audio-player');
+    const recordedAudio = document.getElementById('recorded-audio');
+    const uploadedAudio = document.getElementById('uploaded-audio');
+    const copyBtn = document.getElementById('copy-btn');
+    
+    let mediaRecorder;
+    let audioChunks = [];
+    let recordedAudioBlob = null;
+    let currentUploadedFile = null;
+    
+    // Processing timer
+    let processingStartTime = null;
+    let processingInterval = null;
+
+    // Recording timer
+    let recordingStartTime = null;
+    let recordingInterval = null;
+    
+    function startTimer() {
+        recordingStartTime = Date.now();
+        recordingInterval = setInterval(updateTimer, 1000);
+    }
+    
+    function stopTimer() {
+        if (recordingInterval) {
+            clearInterval(recordingInterval);
+            recordingInterval = null;
+        }
+    }
+    
+    function updateTimer() {
+        const elapsed = Date.now() - recordingStartTime;
+        const minutes = Math.floor(elapsed / 60000);
+        const seconds = Math.floor((elapsed % 60000) / 1000);
+        document.getElementById('recordingTime').textContent = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    function startProcessingTimer() {
+        processingStartTime = Date.now();
+        processingInterval = setInterval(updateProcessingTimer, 1000);
+    }
+    
+    function stopProcessingTimer() {
+        if (processingInterval) {
+            clearInterval(processingInterval);
+            processingInterval = null;
+        }
+    }
+    
+    function updateProcessingTimer() {
+        const elapsed = Date.now() - processingStartTime;
+        const minutes = Math.floor(elapsed / 60000);
+        const seconds = Math.floor((elapsed % 60000) / 1000);
+        const timerElement = document.getElementById('processing-time');
+        if (timerElement) {
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+    }
+    recordBtn.addEventListener('click', startTimer);
+    stopBtn.addEventListener('click', () => {
+        stopTimer();
+        document.getElementById('recordingTime').textContent = "00:00";
+    });
+  
+    // --- TẠO HÀM CHUNG ĐỂ GỬI AUDIO ---
+    // Hàm này nhận một đối tượng Blob hoặc File
+    function sendAudioForTranscription(audioData) {
+        const formData = new FormData();
+        // audioData có thể là Blob từ ghi âm hoặc File từ upload
+        formData.append('audio_file', audioData, 'recording.wav');
+        
+        const selectedLanguage = languageSelect.value;
+        formData.append('language', selectedLanguage);
+
+        // Hiển thị loading với timer
+        const resultContainer = document.getElementById('result-container');
+        resultContainer.innerHTML = `
+            <div class="text-center py-12">
+                <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                <p class="text-blue-600 dark:text-blue-400 font-medium">Đang xử lý, vui lòng chờ...</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Hệ thống đang chuyển đổi âm thanh thành văn bản</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Thời gian: <span id="processing-time">00:00</span></p>
+            </div>
+        `;
+        
+        // Bắt đầu timer
+        startProcessingTimer();
+
+        fetch('/api/transcribe/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrftoken },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Received data:', data);
+            stopProcessingTimer(); // Dừng timer
+            
+            if (data.text) {
+                resultContainer.innerHTML = `
+                    <div class="text-left p-4">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">Kết quả chuyển đổi:</h3>
+                        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                            <p class="text-gray-800 dark:text-white text-base leading-relaxed">${data.text}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultContainer.innerHTML = `
+                    <div class="text-center py-12">
+                        <svg class="w-16 h-16 mx-auto mb-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                        <p class="text-yellow-600 dark:text-yellow-400 font-medium">Không nhận được kết quả</p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Vui lòng thử lại với file âm thanh khác</p>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            stopProcessingTimer(); // Dừng timer
+            resultContainer.innerHTML = `
+                <div class="text-center py-12">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-red-600 dark:text-red-400 font-medium">Đã xảy ra lỗi</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">${error.message}</p>
+                </div>
+            `;
+        });
+    }
+
+      // --- Logic cho việc ghi âm ---
+    recordBtn.addEventListener('click', async () => {
+        // Reset trạng thái
+        playBtn.classList.add('hidden');
+        audioPlayer.classList.add('hidden');
+        recordedAudioBlob = null;
+        
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = event => {
+            audioChunks.push(event.data);
+        };
+
+          mediaRecorder.onstop = () => {
+            recordedAudioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            
+            // Hiển thị nút play và audio player
+            playBtn.classList.remove('hidden');
+            audioPlayer.classList.remove('hidden');
+            
+            // Tạo URL cho audio player
+            const audioUrl = URL.createObjectURL(recordedAudioBlob);
+            recordedAudio.src = audioUrl;
+            
+            audioChunks = [];
+        };
+
+        mediaRecorder.start();
+        recordBtn.disabled = true;
+        stopBtn.disabled = false;
+    });
+
+    stopBtn.addEventListener('click', () => {
+        if (mediaRecorder) {
+            mediaRecorder.stop();
+            recordBtn.disabled = false;
+            stopBtn.disabled = true;
+        }
+    });
+
+    // Play recorded audio
+    playBtn.addEventListener('click', () => {
+        if (recordedAudioBlob) {
+            recordedAudio.play();
+        }
+    });
+
+
+
+    // --- Logic cho việc upload file ---
+    
+    // Click để chọn file
+    uploadBtn.addEventListener('click', () => {
+        uploadInput.click();
+    });
+    
+    // Xử lý khi chọn file
+    uploadInput.addEventListener('change', handleFileSelect);
+    
+    // Drag & Drop events
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-blue-400', 'bg-blue-50', 'dark:bg-blue-900');
+    });
+    
+    dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-blue-400', 'bg-blue-50', 'dark:bg-blue-900');
+    });
+    
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-blue-400', 'bg-blue-50', 'dark:bg-blue-900');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFile(files[0]);
+        }
+    });
+    
+    // Xóa file
+    removeFile.addEventListener('click', () => {
+        uploadInput.value = '';
+        filePreview.classList.add('hidden');
+        dropZone.classList.remove('hidden');
+        // Reset audio player
+        uploadedAudio.src = '';
+        currentUploadedFile = null;
+    });
+
+
+    
+    function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (file) {
+            handleFile(file);
+        }
+    }
+    
+    function handleFile(file) {
+        // Kiểm tra loại file
+        if (!file.type.startsWith('audio/')) {
+            alert('Vui lòng chọn file âm thanh!');
+            return;
+        }
+        
+        // Kiểm tra kích thước file (50MB)
+        if (file.size > 50 * 1024 * 1024) {
+            alert('File quá lớn! Vui lòng chọn file nhỏ hơn 50MB.');
+            return;
+        }
+        
+        // Hiển thị preview
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        filePreview.classList.remove('hidden');
+        
+        // Tạo URL cho audio player
+        const audioUrl = URL.createObjectURL(file);
+        uploadedAudio.src = audioUrl;
+        
+        // Lưu file để sử dụng khi generate
+        currentUploadedFile = file;
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Generate text from current audio source
+    generateBtn.addEventListener('click', () => {
+        if (recordedAudioBlob) {
+            // Nếu có audio ghi âm, sử dụng nó
+            sendAudioForTranscription(recordedAudioBlob);
+        } else if (currentUploadedFile) {
+            // Nếu có file upload, sử dụng nó
+            sendAudioForTranscription(currentUploadedFile);
+        } else {
+            alert('Vui lòng ghi âm hoặc tải file âm thanh trước!');
+        }
+    });
+
+    // Copy text to clipboard
+    copyBtn.addEventListener('click', () => {
+        const resultText = document.querySelector('#result-container .text-gray-800');
+        if (resultText) {
+            navigator.clipboard.writeText(resultText.textContent).then(() => {
+                // Show success message
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'Đã sao chép!';
+                copyBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+                copyBtn.classList.add('bg-green-600');
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.classList.remove('bg-green-600');
+                    copyBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                alert('Không thể sao chép văn bản');
+            });
+        } else {
+            alert('Không có văn bản để sao chép');
+        }
+    });
+
+    
+
+
+
+</script>
+{% endblock %}

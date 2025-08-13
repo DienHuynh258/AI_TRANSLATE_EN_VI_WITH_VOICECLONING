@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}TRANENVI - Transcript{% endblock %}
+
+{% block page_title %}Transcript{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header Section -->
+    <div class="bg-gradient-to-r from-green-500 to-blue-600 rounded-lg p-6 text-white">
+        <h1 class="text-3xl font-bold mb-2">Transcript</h1>
+        <p class="text-green-100">Tạo bản ghi chép từ file âm thanh hoặc video</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Input Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Tải file</h2>
+                <p class="text-gray-600 dark:text-gray-300 mt-1">Tải lên file âm thanh hoặc video để tạo transcript</p>
+            </div>
+            
+            <div class="p-6">
+                <!-- File Upload Area -->
+                <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
+                    <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-800 dark:text-white mb-2">Kéo thả file vào đây</h3>
+                    <p class="text-gray-600 dark:text-gray-300 mb-4">Hoặc click để chọn file từ máy tính</p>
+                    <input type="file" class="hidden" accept="audio/*,video/*" id="mediaFile">
+                    <button class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors">
+                        Chọn file
+                    </button>
+                </div>
+                
+                <div class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                    <p class="mb-2"><strong>Hỗ trợ:</strong></p>
+                    <p class="mb-1">• Âm thanh: MP3, WAV, M4A, FLAC, OGG</p>
+                    <p class="mb-1">• Video: MP4, AVI, MOV, MKV, WMV</p>
+                    <p>• Kích thước tối đa: 100MB</p>
+                </div>
+
+                <!-- File Info (hidden by default) -->
+                <div id="fileInfo" class="hidden mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <p class="font-medium text-gray-800 dark:text-white" id="fileName">file.mp3</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400" id="fileSize">2.5 MB</p>
+                        </div>
+                        <button class="text-red-500 hover:text-red-700">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Processing Options -->
+                <div class="mt-6">
+                    <h3 class="text-lg font-medium text-gray-800 dark:text-white mb-4">Tùy chọn xử lý</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Ngôn ngữ
+                            </label>
+                            <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Tự động phát hiện</option>
+                                <option>Tiếng Việt</option>
+                                <option>English</option>
+                                <option>中文</option>
+                                <option>日本語</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Chất lượng transcript
+                            </label>
+                            <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent dark:bg-gray-700 dark:text-white">
+                                <option>Cao (Chậm hơn)</option>
+                                <option>Trung bình</option>
+                                <option>Thấp (Nhanh hơn)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" id="timestamps" class="w-4 h-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                            <label for="timestamps" class="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                                Bao gồm timestamps
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" id="speaker" class="w-4 h-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                            <label for="speaker" class="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                                Phân biệt người nói
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Process Button -->
+                <div class="mt-6">
+                    <button class="w-full px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors">
+                        Bắt đầu tạo transcript
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Output Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Transcript</h2>
+                <p class="text-gray-600 dark:text-gray-300 mt-1">Bản ghi chép được tạo</p>
+            </div>
+            
+            <div class="p-6">
+                <!-- Progress Bar (hidden by default) -->
+                <div id="progressSection" class="hidden mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Đang xử lý...</span>
+                        <span class="text-sm text-gray-500 dark:text-gray-400" id="progressPercent">45%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div class="bg-green-500 h-2 rounded-full transition-all duration-300" id="progressBar" style="width: 45%"></div>
+                    </div>
+                </div>
+
+                <!-- Transcript Content -->
+                <div class="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4 min-h-[400px]">
+                    <div class="text-gray-500 dark:text-gray-400 text-center py-16">
+                        <svg class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p>Transcript sẽ hiển thị ở đây</p>
+                        <p class="text-sm mt-2">Tải file và bắt đầu xử lý để tạo transcript</p>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="mt-4 flex justify-between items-center">
+                    <div class="flex space-x-2">
+                        <button class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg transition-colors">
+                            Sao chép
+                        </button>
+                        <button class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg transition-colors">
+                            Tải xuống TXT
+                        </button>
+                        <button class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white font-medium rounded-lg transition-colors">
+                            Tải xuống SRT
+                        </button>
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                        Độ chính xác: <span class="font-medium text-green-600">92%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transcripts -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Transcript gần đây</h2>
+        </div>
+        
+        <div class="p-6">
+            <div class="space-y-4">
+                <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-gray-800 dark:text-white">meeting_recording.mp3</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Tạo lúc 14:30 - 15 phút trước</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded transition-colors">
+                            Xem
+                        </button>
+                        <button class="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded transition-colors">
+                            Tải
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-gray-800 dark:text-white">interview_video.mp4</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Tạo lúc 10:15 - 2 giờ trước</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded transition-colors">
+                            Xem
+                        </button>
+                        <button class="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white text-sm rounded transition-colors">
+                            Tải
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // File upload handling
+    const fileInput = document.getElementById('mediaFile');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.classList.remove('hidden');
+        }
+    });
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // Progress bar simulation
+    function simulateProgress() {
+        const progressSection = document.getElementById('progressSection');
+        const progressBar = document.getElementById('progressBar');
+        const progressPercent = document.getElementById('progressPercent');
+        
+        progressSection.classList.remove('hidden');
+        
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.random() * 10;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(interval);
+            }
+            progressBar.style.width = progress + '%';
+            progressPercent.textContent = Math.round(progress) + '%';
+        }, 500);
+    }
+</script>
+{% endblock %}
